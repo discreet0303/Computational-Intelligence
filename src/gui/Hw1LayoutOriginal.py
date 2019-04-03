@@ -71,7 +71,8 @@ class Hw1Layout():
                 self.updateCarPos()
                 self.updateCarAngle()
 
-                self.carSteeringWheelAngle = self.FuzzyAlgorithmHw1.fuzzyAlgorithm(self.frontLineLength, self.rightLineLength, self.leftLineLength)
+                # self.carSteeringWheelAngle = self.FuzzyAlgorithmHw1.fuzzyAlgorithm(self.frontLineLength, self.rightLineLength, self.leftLineLength)
+                self.carSteeringWheelAngle = 40
                 # if count < 20:
                     # print('sensor len ========================')
                     # print(self.frontLineLength)
