@@ -83,64 +83,8 @@ import numpy as np
 import math
 
 from src.gui.Hw1Layout import Hw1Layout
-
+from src.car.Car import Car
 # Hw1
-def getSersorDistance(sensorType):
-
-    sensorLenArr = []
-    for trackIndex, point in enumerate(track[:-2]):
-        sensorLen = getSensorToLineDistance(point, track[trackIndex + 1], sensorType)
-        if sensorLen != 0: sensorLenArr.append(sensorLen)
-
-    if len(sensorLenArr) == 0: return 0
-    return min(sensorLenArr)
-
-def getSensorToLineDistance(trackStartPos, trackEndPos, sensorType):
-    carAngle = 0
-    if sensorType == 'front': angle = carAngle
-    elif sensorType == 'right': angle = carAngle - 45
-    elif sensorType == 'left': angle = carAngle + 45
-
-    sensorPos = [ 10 + math.cos(math.radians(angle)) * 5, 18 + math.sin(math.radians(angle)) * 5]
-    sensorEq = getLineWith2Point([10, 18], sensorPos)
-    trackEq = getLineWith2Point(trackStartPos, trackEndPos)
-
-    eq_axby = np.array([sensorEq[:2], trackEq[:2]])
-    eq_c = np.array([sensorEq[2], trackEq[2]]).reshape(2, 1)
-    eq_det = np.linalg.det(eq_axby)
-
-    if eq_det == 0: return [10, 18]
-    ans = np.linalg.solve(eq_axby, eq_c)
-    ans = [ans[0][0], ans[1][0]]
-
-    sensorVector = np.array(sensorPos) - np.array([10, 18])
-    ansVector = np.array(ans) - np.array([10, 18])
-    product = np.dot(sensorVector, ansVector)
-    cosValue = product / lineLength(sensorVector) / lineLength(ansVector)
-
-    if cosValue < 0: return 0
-    return lineLength(ansVector)
-
-
-def getLineWith2Point(point1, point2):
-        # ax + by = c
-        a = b = c =0
-        if point1[0] == point2[0]:
-            a = 1
-            c = point1[0]
-        elif point1[1] == point2[1]:
-            b = 1
-            c = point1[1]
-        else:
-            a = (point1[1] - point2[1]) / (point1[0] - point2[0])
-            b = -1
-            c = a * point1[0] + b * point1[1]
-
-        return (a, b, c)
-
-def lineLength(point1):
-    return math.sqrt((point1[0]) ** 2 + (point1[1]) ** 2)
-
 if __name__== "__main__":
     app = Hw1Layout()
     app.mainloop()
@@ -148,6 +92,5 @@ if __name__== "__main__":
     # a = FuzzyAlgorithmHw1()
     # a.fuzzyAlgorithmPPT(0,0,0)
 
-    # 10, 18
-    # getSersorDistance('right')
-    # print(getSensorToLineDistance([30, 10],[6, 10], 'right'))
+    # a = Car([0,0], 90)
+
