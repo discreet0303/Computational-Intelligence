@@ -2,9 +2,6 @@ import math
 import numpy as np
 
 class MathAlgorithm():
-    # def __init__():
-    #     self.test = 0
-
     def checkPointBetween2Points(self, point1, point2, centerPoint):
         if point1[0] == point2[0] or point1[1] == point2[1]:
             if point1[0] < centerPoint[0] < point2[0] or point1[0] > centerPoint[0] > point2[0]:

@@ -117,6 +117,11 @@ class Car():
         if types == 'front': return round(self.get2PointDistance(self.fsPos, self.carCenterPos), 3)
         if types == 'right': return round(self.get2PointDistance(self.rsPos, self.carCenterPos), 3)
         if types == 'left': return round(self.get2PointDistance(self.lsPos, self.carCenterPos), 3)
+    
+    def resetCarState(self, carCenterPos, carAngle):
+        self.carOrbit = []
+        self.carCenterPos = carCenterPos
+        self.carAngle = carAngle
 
     def setTrack(self, trackData):
         self.track = trackData
