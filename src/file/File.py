@@ -6,8 +6,8 @@ class File():
         self.__BASE_DIR_PATH = os.getcwd()
         self.__DATASET_DIR_PATH = os.path.join(self.__BASE_DIR_PATH, 'data')
     
-    def getTrackData(self):
-        filePath = os.path.join(self.__DATASET_DIR_PATH + '/track', 'case01.txt')
+    def getTrackData(self, fName):
+        filePath = os.path.join(self.__DATASET_DIR_PATH + '/track', str(fName))
 
         with open(filePath, 'r') as dataSet:
             originData = dataSet.read().split('\n')
@@ -26,7 +26,7 @@ class File():
         
         return (startPoint, endArea, trackData)
 
-    def getAllFileUnderDirectory(self, filename):
+    def getAllTrackFilename(self):
         fileList = []
         for root, dirs, files in os.walk(self.__DATASET_DIR_PATH + '/track'):  
             for filename in files:

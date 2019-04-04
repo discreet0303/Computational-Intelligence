@@ -77,7 +77,7 @@ class Car():
         if sensorType == 'left': sPos = self.getSensorPos(45, 2)
 
         sPosArr = []
-        for trackIndex, point in enumerate(self.track[:-2]):
+        for trackIndex, point in enumerate(self.track[:-1]):
             crossPoint = self.mathAlgorithm.get2LineCrossPoint(point, self.track[trackIndex + 1], sPos, self.carCenterPos)
             if crossPoint != False:
                 crossPoint = [round(crossPoint[0], 3), round(crossPoint[1], 3)]
@@ -87,7 +87,6 @@ class Car():
                 cosValue = product / self.getVectorLength(sensorVector) / self.getVectorLength(ansVector)
                 if cosValue > 0 and self.mathAlgorithm.checkPointBetween2Points(point, self.track[trackIndex + 1], crossPoint):
                     sPosArr.append(crossPoint)
-
         sPoslen = 100
         for point in sPosArr:
             if self.get2PointDistance(point, self.carCenterPos) < sPoslen:
@@ -99,7 +98,7 @@ class Car():
         state = False
         if self.endArea[0][0] <= self.carCenterPos[0] <= self.endArea[1][0] and self.endArea[0][1] >= self.carCenterPos[1] >= self.endArea[1][1]:
             return True
-        for index, point in enumerate(self.track[:-2]):
+        for index, point in enumerate(self.track[:-1]):
             if self.mathAlgorithm.getPointToLineDistance(point, self.track[index + 1], self.carCenterPos) < 3:
                 state = True
         return state
@@ -122,6 +121,9 @@ class Car():
         self.carOrbit = []
         self.carCenterPos = carCenterPos
         self.carAngle = carAngle
+
+    def setEndArea(self, endArea):
+        self.endArea = endArea
 
     def setTrack(self, trackData):
         self.track = trackData

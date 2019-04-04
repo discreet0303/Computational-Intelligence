@@ -34,7 +34,7 @@ class Hw1Layout(tk.Tk):
         self.orbitData = [[], []]
         self.recordIndex = 0
 
-        self.carStartInfo, self.endArea, self.track = self.file.getTrackData()
+        self.carStartInfo, self.endArea, self.track = self.file.getTrackData('case01.txt')
         self.car = Car(self.carStartInfo[:2], self.carStartInfo[2], self.ax, self.track, self.endArea)
         self.car.draw(False)
 
@@ -121,11 +121,20 @@ class Hw1Layout(tk.Tk):
 
     def componment(self):
         plot_widget = self.canvas.get_tk_widget().place(x = 180, y = 0)
-
-        infoPos = (10, 40)
+        infoPos = (10, 100)
         valueX = 100
         self.start_bt = tk.Button(self, text = "開始", command = self.startBt, width = 15, height = 2)
         self.start_bt.place(x = 10, y = 10)
+
+        fileOptions = self.file.getAllTrackFilename()
+        self.fileOptionValue = tk.StringVar('')
+        self.fileOptionValue.set(fileOptions[0])
+
+        self.fileOption_lb = tk.Label(self, text = '更換軌道', font = ('Arial', 10))
+        self.fileOption_lb.place(x = infoPos[0], y = infoPos[1] - 35)
+
+        self.fileOption_op = tk.OptionMenu(self, self.fileOptionValue, *fileOptions)
+        self.fileOption_op.place(x = infoPos[0], y = infoPos[1] - 15)
 
         carAngle_tx = tk.Label(self, text = '自走車角度 :', font = ('Arial', 10))
         carAngle_tx.place(x = infoPos[0], y = infoPos[1] + 20)
@@ -168,16 +177,22 @@ class Hw1Layout(tk.Tk):
         self.readHistory_bt.place(x = infoPos[0], y = infoPos[1] + 200)
 
     def startBt(self):
-        carStartInfo, endArea, track = self.file.getTrackData()
+        carStartInfo, endArea, track = self.file.getTrackData(self.fileOptionValue.get())
         self.car.resetCarState(carStartInfo[:2], carStartInfo[2])
+        self.car.setTrack(track)
+        self.car.setEndArea(endArea)
         self.runType = 1
 
     def readTrackBt(self):
-        carStartInfo, endArea, track = self.file.getTrackData()
+        carStartInfo, endArea, track = self.file.getTrackData(self.fileOptionValue.get())
         self.car.resetCarState(carStartInfo[:2], carStartInfo[2])
+        self.car.setTrack(track)
+        self.car.setEndArea(endArea)
         self.runType = 2
 
     def readHistoryBt(self):
-        carStartInfo, endArea, track = self.file.getTrackData()
+        carStartInfo, endArea, track = self.file.getTrackData(self.fileOptionValue.get())
         self.car.resetCarState(carStartInfo[:2], carStartInfo[2])
+        self.car.setTrack(track)
+        self.car.setEndArea(endArea)
         self.runType = 3
