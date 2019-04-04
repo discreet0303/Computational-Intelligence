@@ -1,34 +1,48 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import math
+import copy 
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 from src.algorithm.MathAlgorithm import MathAlgorithm
 
 class Car():
-    def __init__(self, startPoint, startAngle, ax, track):
-        self.carCenterPos = [0, 0]
-        self.carAngle = 90
+    def __init__(self, startPoint, startAngle, ax, track, endArea):
+        self.carCenterPos = startPoint
+        self.carAngle = startAngle
         self.carRadius = 3
         self.carSteeringWheelAngle = 0
 
+        self.mathAlgorithm = MathAlgorithm()
+        
         self.fsPos = self.getSensorPos(0, 2)
         self.rsPos = self.getSensorPos(-45, 2)
         self.lsPos = self.getSensorPos(45, 2)
 
         self.ax = ax
-
-        self.mathAlgorithm = MathAlgorithm()
         self.track = track
+        self.carOrbit = [copy.deepcopy(self.carCenterPos)]
+        self.endArea = endArea
+
         self.draw(False)
 
     def draw(self, drawSensor):
         # Track
+        rect = patches.Rectangle(self.endArea[0] , self.endArea[1][0] - self.endArea[0][0], self.endArea[1][1] - self.endArea[0][1],linewidth=1,edgecolor='r',facecolor='none')
+        self.ax.add_patch(rect)
         for index, line in enumerate(self.track[:-1]):
             self.ax.plot([line[0], self.track[index + 1][0]], [line[1], self.track[index + 1][1]], color='k',
                      linewidth=1, solid_capstyle='round')
         # Car
         car = plt.Circle(self.carCenterPos, 3, color='r',alpha=1)
         self.ax.add_artist(car)
+        # Car orbit
+        xOrbit = []
+        yOrbit = []
+        for point in self.carOrbit:
+            xOrbit.append(point[0])
+            yOrbit.append(point[1])
+        self.ax.scatter(xOrbit, yOrbit, s=10, edgecolors='none', c='red')
         # Sensor
         if drawSensor:
             self.updateSensorPos()
@@ -48,11 +62,9 @@ class Car():
         self.carCenterPos[1] = round(self.carCenterPos[1] + eqY1 - eqY2 * eqY3, 3)
 
         self.carAngle = self.carAngle - int(math.degrees(math.asin(2 * math.sin(math.radians(self.carSteeringWheelAngle)) / (self.carRadius * 2))))
+        self.carOrbit.append(copy.deepcopy(self.carCenterPos))
         isCarCollision = self.checkTrackCollision()
         return isCarCollision
-
-    def updateCarAngle(self):
-        self.carAngle = self.carAngle - int(math.degrees(math.asin(2 * math.sin(math.radians(self.carSteeringWheelAngle)) / (self.carRadius * 2))))
 
     def updateSensorPos(self):
         self.fsPos = self.getSensorToTrackPos('front')
@@ -85,8 +97,10 @@ class Car():
 
     def checkTrackCollision(self):
         state = False
+        if self.endArea[0][0] <= self.carCenterPos[0] <= self.endArea[1][0] and self.endArea[0][1] >= self.carCenterPos[1] >= self.endArea[1][1]:
+            return True
         for index, point in enumerate(self.track[:-2]):
-            if self.mathAlgorithm.getPointToLineDistance(point, self.track[index + 1], self.carCenterPos) < 3.5:
+            if self.mathAlgorithm.getPointToLineDistance(point, self.track[index + 1], self.carCenterPos) < 3:
                 state = True
         return state
 

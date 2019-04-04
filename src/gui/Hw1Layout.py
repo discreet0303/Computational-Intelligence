@@ -13,6 +13,7 @@ from matplotlib.figure import Figure
 from src.algorithm.FuzzyAlgorithmHw1 import FuzzyAlgorithmHw1
 from src.algorithm.MathAlgorithm import MathAlgorithm
 from src.car.Car import Car
+from src.file.File import File
 
 class Hw1Layout(tk.Tk):
     def __init__(self):
@@ -28,19 +29,12 @@ class Hw1Layout(tk.Tk):
 
         self.fuzzyAlgorithm = FuzzyAlgorithmHw1()
         self.mathAlgorithm = MathAlgorithm()
+        self.file = File()
+        self.orbitData = [[], []]
+        self.recordIndex = 0
 
-        self.track = [
-            [-6, 0],
-            [-6, 22],
-            [18, 22],
-            [18, 40],
-            [30, 40],
-            [30, 10],
-            [6, 10],
-            [6, 0],
-            [-6, 0],
-        ]
-        self.car = Car([0, 0], 90, self.ax, self.track)
+        self.carStartInfo, self.endArea, self.track = self.file.getTrackData()
+        self.car = Car(self.carStartInfo[:2], self.carStartInfo[2], self.ax, self.track, self.endArea)
         self.car.draw(False)
 
         self.componment()
@@ -51,24 +45,60 @@ class Hw1Layout(tk.Tk):
             self.ax.clear()
             self.car.draw(True)
 
-            carState = self.car.updateCarPos()
-            if carState: self.runType = 0
+            if self.runType == 1:
+                self.orbitData[0].append([
+                    self.car.getSensorToTrackDistance('front'),
+                    self.car.getSensorToTrackDistance('right'),
+                    self.car.getSensorToTrackDistance('left'),
+                    self.car.getcarSteeringWheelAngle()
+                ])
+                self.orbitData[1].append([
+                    self.car.carCenterPos[0],
+                    self.car.carCenterPos[1],
+                    self.car.getSensorToTrackDistance('front'),
+                    self.car.getSensorToTrackDistance('right'),
+                    self.car.getSensorToTrackDistance('left'),
+                    self.car.getcarSteeringWheelAngle()
+                ])
+                carState = self.car.updateCarPos()
+                if carState: self.runType = 0
+                # self.runType = 0
+                fsDistance = self.car.getSensorToTrackDistance('front')
+                rsDistance = self.car.getSensorToTrackDistance('right')
+                lsDistance = self.car.getSensorToTrackDistance('left')
+                self.fsDistance_lb_var.set(fsDistance)
+                self.rsDistance_lb_var.set(rsDistance)
+                self.lsDistance_lb_var.set(lsDistance)
+                self.carAngle_lb_var.set(self.car.getCarAngle())
+                self.carSteeringWheelAngle_lb_var.set(self.car.getcarSteeringWheelAngle())
 
-            fsDistance = self.car.getSensorToTrackDistance('front')
-            rsDistance = self.car.getSensorToTrackDistance('right')
-            lsDistance = self.car.getSensorToTrackDistance('left')
-            self.fsDistance_lb_var.set(fsDistance)
-            self.rsDistance_lb_var.set(rsDistance)
-            self.lsDistance_lb_var.set(lsDistance)
-            self.carSteeringWheelAngle_lb_var.set(self.car.getcarSteeringWheelAngle())
+                steeringWheelAngle = self.fuzzyAlgorithm.fuzzySystem(fsDistance, rsDistance, lsDistance)
+                self.car.setcarSteeringWheelAngle(steeringWheelAngle)
 
-            steeringWheelAngle = self.fuzzyAlgorithm.fuzzySystem(fsDistance, rsDistance, lsDistance)
-            self.car.setcarSteeringWheelAngle(steeringWheelAngle)
+                if self.runType == 0:
+                    self.file.writeContentToFile(self.orbitData[0], 'train4D.txt')
+                    self.file.writeContentToFile(self.orbitData[1], 'train6D.txt')
 
-            # self.runType = 0
+            elif self.runType == 2:
+                record4D = self.file.getCarRecord('train4D.txt')
+                self.car.setcarSteeringWheelAngle(record4D[self.recordIndex][3])
+                self.recordIndex += 1
+                self.car.updateCarPos()
+                if len(record4D) == self.recordIndex:
+                    self.runType = 0
+                    self.recordIndex = 0
+
+            elif self.runType == 3:
+                record6D = self.file.getCarRecord('train6D.txt')
+                self.car.setcarSteeringWheelAngle(record4D[self.recordIndex][5])
+                self.recordIndex += 1
+                self.car.updateCarPos()
+                if len(record6D) == self.recordIndex:
+                    self.runType = 0
+                    self.recordIndex = 0
+
             self.canvas.draw()
         self.after(100, self.update)
-
 
     def componment(self):
         plot_widget = self.canvas.get_tk_widget().place(x = 200, y = 0)
@@ -113,16 +143,16 @@ class Hw1Layout(tk.Tk):
         lsDistance_lb = tk.Label(self, textvariable = self.lsDistance_lb_var, font = ('Arial', 10))
         lsDistance_lb.place(x = infoPos[0] + valueX, y = infoPos[1] + 100)
 
-
-        self.readTrack_bt = tk.Button(self, text = "讀取軌道", command = self.readTrackBt, width = 15, height = 2)
-        self.readTrack_bt.place(x = 0, y = 300)
-        self.readHistory_bt = tk.Button(self, text = "讀取記錄", command = self.readHistoryBt, width = 15, height = 2)
-        self.readHistory_bt.place(x = 10, y = 400)
+        self.readTrack_bt = tk.Button(self, text = "讀取 4D 記錄", command = self.readTrackBt, width = 15, height = 2)
+        self.readTrack_bt.place(x = infoPos[0], y = infoPos[1] + 150)
+        self.readHistory_bt = tk.Button(self, text = "讀取 6D 記錄", command = self.readHistoryBt, width = 15, height = 2)
+        self.readHistory_bt.place(x = infoPos[0], y = infoPos[1] + 200)
 
     def startBt(self):
-        self.car.setTrack(self.track)
         self.runType = 1
+
     def readTrackBt(self):
         self.runType = 2
+
     def readHistoryBt(self):
         self.runType = 3

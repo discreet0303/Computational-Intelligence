@@ -12,18 +12,13 @@ class FuzzyAlgorithmHw1():
             self.leftSensor(leftSensorLen, 'large'),
             self.rightSensor(rightSensorLen, 'large'),
         ]
-        fuzzySum = 0
-        rulesSum = 0
+        fuzzySum = rulesSum = 0
         for ruleNum, rule in enumerate(rules):
             fuzzySum += rule * rulesWeight[ruleNum]
             rulesSum += rule
-        if rulesSum == 0:
-            return 0
-        elif fuzzySum / rulesSum < -40:
-            return -40
-        elif fuzzySum / rulesSum > 40:
-            return 40
-        return fuzzySum / rulesSum
+        
+        if rulesSum == 0: return 0
+        return max(min(40, round(fuzzySum / rulesSum, 4)), -40)
 
     def frontSensor(self, frontDis, types):
         if types == 'small':
