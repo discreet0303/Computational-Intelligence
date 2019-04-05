@@ -47,6 +47,8 @@ class Hw1Layout(tk.Tk):
             self.car.draw(True)
 
             if self.runType == 1:
+                carState = self.car.updateCarPos()
+                # self.runType = 0
                 self.orbitData[0].append([
                     self.car.getSensorToTrackDistance('front'),
                     self.car.getSensorToTrackDistance('right'),
@@ -61,8 +63,7 @@ class Hw1Layout(tk.Tk):
                     self.car.getSensorToTrackDistance('left'),
                     self.car.getcarSteeringWheelAngle()
                 ])
-                # self.runType = 0
-                carState = self.car.updateCarPos()
+                # print(self.orbitData)
                 if carState:
                     self.runType = 0
                 else:
@@ -79,15 +80,16 @@ class Hw1Layout(tk.Tk):
                     self.updateCarInfoLb()
                     self.file.writeContentToFile(self.orbitData[0], 'train4D.txt')
                     self.file.writeContentToFile(self.orbitData[1], 'train6D.txt')
+                    self.orbitData = [[], []]
 
             elif self.runType == 2:
                 record4D = self.file.getCarRecord('train4D.txt')
-                if self.recordIndex == 0: self.car.resetCarState([0, 0], 90)
 
                 self.car.setcarSteeringWheelAngle(record4D[self.recordIndex][3])
                 self.recordIndex += 1
-                self.car.updateCarPos()
+                carState = self.car.updateCarPos()
                 self.updateCarInfoLb()
+                if carState: self.recordIndex = len(record4D)
                                     
                 if len(record4D) == self.recordIndex:
                     self.runType = 0
@@ -95,12 +97,12 @@ class Hw1Layout(tk.Tk):
 
             elif self.runType == 3:
                 record6D = self.file.getCarRecord('train6D.txt')
-                if self.recordIndex == 0: self.car.resetCarState([0, 0], 90)
 
                 self.car.setcarSteeringWheelAngle(record6D[self.recordIndex][5])
                 self.recordIndex += 1
-                self.car.updateCarPos()
+                carState = self.car.updateCarPos()
                 self.updateCarInfoLb()
+                if carState: self.recordIndex = len(record6D)
 
                 if len(record6D) == self.recordIndex:
                     self.runType = 0
