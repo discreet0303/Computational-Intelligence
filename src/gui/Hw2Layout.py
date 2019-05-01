@@ -48,7 +48,6 @@ class Hw2Layout(tk.Tk):
 
             if self.runType == 1:
                 carState = self.car.updateCarPos()
-                # self.runType = 0
                 self.orbitData[0].append([
                     self.car.getSensorToTrackDistance('front'),
                     self.car.getSensorToTrackDistance('right'),
@@ -63,7 +62,7 @@ class Hw2Layout(tk.Tk):
                     self.car.getSensorToTrackDistance('left'),
                     self.car.getcarSteeringWheelAngle()
                 ])
-                # print(self.orbitData)
+                
                 if carState:
                     self.runType = 0
                 else:
@@ -80,8 +79,6 @@ class Hw2Layout(tk.Tk):
                     self.updateCarInfoLb()
                     self.file.writeContentToFile(self.orbitData[0], 'train4D.txt')
                     self.file.writeContentToFile(self.orbitData[1], 'train6D.txt')
-                    print(self.GeneAlgorithm.bestGene.vector)
-                    # self.file.writeContentToFile(self.GeneAlgorithm.bestGene.vector, 'RBFN.txt')
                     self.orbitData = [[], []]
 
             elif self.runType == 2:
@@ -250,3 +247,5 @@ class Hw2Layout(tk.Tk):
         for index in range(iteration):
             print('Iteration ', index)
             self.GeneAlgorithm.training()
+        
+        self.file.writeRBFNParamToFile(self.GeneAlgorithm.bestGene.vector)

@@ -128,3 +128,5 @@ fuzzy-system/
 doc/
 
 *.7z
+
+data/

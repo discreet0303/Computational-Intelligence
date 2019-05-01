@@ -56,6 +56,17 @@ class File():
                         pointStr += str(i) + ' '
                     f.write(pointStr + str(point[len(point)-1]) + '\n')
 
+    def writeRBFNParamToFile(self, vector):
+        string = ''
+        for index, v in enumerate(vector):
+            if len(vector) - 1 != index:
+                string += str(v) + ','
+            else:
+                string += str(v)
+        print(string)
+        with open(self.__DATASET_DIR_PATH + '/output/RBFN.txt', 'w') as f:
+            f.write(string)
+
     def getCarRecordForGene(self, fName):
         filePath = os.path.join(self.__DATASET_DIR_PATH + '/record', fName)
         with open(filePath, 'r') as dataSet:
