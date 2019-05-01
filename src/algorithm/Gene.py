@@ -5,10 +5,10 @@ import numpy as np
 from src.algorithm.RBFN import RBFN
 class Gene():
 
-    def __init__(self):
+    def __init__(self, dimension):
         
         self.nNum = 8
-        self.dimension = 3
+        self.dimension = dimension
         self.vectorLen = 1 + self.nNum + self.nNum * self.dimension + self.nNum
         self.vector = []
         self.minFitness = 0

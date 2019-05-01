@@ -10,6 +10,7 @@ class GeneAlgorithm():
     
     def __init__(self):
         self.iteration = 500
+        self.dimension = 3
 
         self.genePoolSize = 1000
         self.genePool = []
@@ -17,14 +18,9 @@ class GeneAlgorithm():
         self.matingRate = 0.6
         self.mutationRate = 0.01
 
-        self.bestGene = Gene()
+        self.bestGene = None
 
         self.file = File()
-        self.senRecord, self.wheelRecord = self.file.getCarRecordForGene('train4D.txt')
-        self.recordNormalization()
-        
-        for size in range(self.genePoolSize):
-            self.genePool.append(Gene())
 
     def training(self):
         for index in range(self.genePoolSize):
@@ -60,19 +56,28 @@ class GeneAlgorithm():
                 self.minFitness = fit
                 self.bestGene = copy.deepcopy(self.genePool[geneIndex])   
     
-    def setGeneParam(self, genePoolSize, matingRate, mutationRate, minFitness):
+    def setGeneParam(self, dimension, genePoolSize, matingRate, mutationRate, minFitness):
+        self.dimension = dimension
         self.genePoolSize = genePoolSize
         self.matingRate = matingRate
         self.mutationRate = mutationRate
         self.minFitness = minFitness
+
+        fileName = 'train4D.txt' if self.dimension == 3 else 'train6D.txt'
+        self.senRecord, self.wheelRecord = self.file.getCarRecordForGene(fileName)
+        self.recordNormalization()
+
+        self.genePool = []
+        for size in range(self.genePoolSize):
+            self.genePool.append(Gene(self.dimension))
     
     def recordNormalization(self):
         for index, wheel in enumerate(self.wheelRecord):
             self.wheelRecord[index] = (np.array(wheel) + 40) / 80
 
-    def loadRBFN(self, vector):
+    def loadRBFN(self, vector, dataDimension):
         print('loadRBFN')
-        self.bestGene = Gene()
+        self.bestGene = Gene(dataDimension)
         self.bestGene.updateVector(vector)
 
     # vector = [
