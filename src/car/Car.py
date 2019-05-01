@@ -119,6 +119,7 @@ class Car():
     
     def resetCarState(self, carCenterPos, carAngle):
         self.carOrbit = []
+        print(self.carOrbit)
         self.carCenterPos = carCenterPos
         self.carAngle = carAngle
 

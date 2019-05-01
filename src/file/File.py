@@ -42,7 +42,6 @@ class File():
         for index, data in enumerate(originData):
             if data != '':
                 temp = []
-                num = data.split(' ')
                 for num in data.split(' '):
                     temp.append(float(num))
                 record.append(temp)
@@ -56,3 +55,46 @@ class File():
                     for i in point[:len(point)-1]:
                         pointStr += str(i) + ' '
                     f.write(pointStr + str(point[len(point)-1]) + '\n')
+
+    def writeRBFNParamToFile(self, vector):
+        string = ''
+        for index, v in enumerate(vector):
+            if len(vector) - 1 != index:
+                string += str(v) + ','
+            else:
+                string += str(v)
+        print(string)
+        with open(self.__DATASET_DIR_PATH + '/output/RBFN.txt', 'w') as f:
+            f.write(string)
+
+    def getCarRecordForGene(self, fName):
+        filePath = os.path.join(self.__DATASET_DIR_PATH + '/record', fName)
+        with open(filePath, 'r') as dataSet:
+            originData = dataSet.read().split('\n')
+        
+        sensorRecord = []
+        wheelRecord = []
+        for index, data in enumerate(originData):
+            if data != '':
+                temp = []
+                record = data.split(' ')
+                for num in range(len(record)):
+                    if num == len(record) - 1: wheelRecord.append(float(record[num])) 
+                    else: temp.append(float(record[num]))
+                sensorRecord.append(temp)
+                
+        return sensorRecord, wheelRecord
+
+    def getRBFNParam(self):
+        filePath = os.path.join(self.__DATASET_DIR_PATH + '/record/RBFN.txt')
+        with open(filePath, 'r') as dataSet:
+            originData = dataSet.read().split('\n')
+        
+        rbfnParam = []
+        for index, data in enumerate(originData):
+            if data != '':
+                record = data.split(',')
+                for num in record:
+                    rbfnParam.append(float(num))
+                
+        return rbfnParam
