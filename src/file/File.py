@@ -73,3 +73,17 @@ class File():
                 sensorRecord.append(temp)
                 
         return sensorRecord, wheelRecord
+
+    def getRBFNParam(self):
+        filePath = os.path.join(self.__DATASET_DIR_PATH + '/record/RBFN.txt')
+        with open(filePath, 'r') as dataSet:
+            originData = dataSet.read().split('\n')
+        
+        rbfnParam = []
+        for index, data in enumerate(originData):
+            if data != '':
+                record = data.split(',')
+                for num in record:
+                    rbfnParam.append(float(num))
+                
+        return rbfnParam

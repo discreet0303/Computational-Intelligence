@@ -20,7 +20,7 @@ class Hw2Layout(tk.Tk):
         super().__init__()
 
         self.geometry("790x480")
-        self.title("Computer Intelligence")
+        self.title("Computer Intelligence - Gene & RBFN")
         self.runType = 0
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111)
@@ -80,6 +80,8 @@ class Hw2Layout(tk.Tk):
                     self.updateCarInfoLb()
                     self.file.writeContentToFile(self.orbitData[0], 'train4D.txt')
                     self.file.writeContentToFile(self.orbitData[1], 'train6D.txt')
+                    print(self.GeneAlgorithm.bestGene.vector)
+                    # self.file.writeContentToFile(self.GeneAlgorithm.bestGene.vector, 'RBFN.txt')
                     self.orbitData = [[], []]
 
             elif self.runType == 2:
@@ -90,7 +92,7 @@ class Hw2Layout(tk.Tk):
                 carState = self.car.updateCarPos()
                 self.updateCarInfoLb()
                 if carState: self.recordIndex = len(record4D)
-                                    
+
                 if len(record4D) == self.recordIndex:
                     self.runType = 0
                     self.recordIndex = 0
@@ -119,15 +121,48 @@ class Hw2Layout(tk.Tk):
         self.rsDistance_lb_var.set(rsDistance)
         self.lsDistance_lb_var.set(lsDistance)
         self.carAngle_lb_var.set(self.car.getCarAngle())
-        self.carSteeringWheelAngle_lb_var.set(self.car.getcarSteeringWheelAngle())
+        self.carSteeringWheelAngle_lb_var.set(round(self.car.getcarSteeringWheelAngle(), 4))
 
     def componment(self):
         plot_widget = self.canvas.get_tk_widget().place(x = 180, y = 0)
-        infoPos = (10, 100)
-        valueX = 100
-        self.start_bt = tk.Button(self, text = "開始", command = self.startBt, width = 15, height = 2)
-        self.start_bt.place(x = 10, y = 10)
 
+        genePos = (10, 10)
+        self.start_training = tk.Button(self, text = "開始訓練", command = self.startTrain, width = 10, height = 1)
+        self.start_training.place(x = genePos[0], y = genePos[1])
+
+        self.iterationTimes_lb = tk.Label(self, text = '迭代次數', font = ('Arial', 10))
+        self.iterationTimes_lb.place(x = genePos[0], y = genePos[1] + 30)
+        self.iterationTimes_lb_var = tk.StringVar()
+        self.iterationTimes_lb_var.set('500')
+        self.iterationTimes_tx = tk.Entry(self, width = 10, textvariable = self.iterationTimes_lb_var)
+        self.iterationTimes_tx.place(x = genePos[0] + 70, y = genePos[1] + 30)
+
+        self.genePoolSize_lb = tk.Label(self, text = '族群大小', font = ('Arial', 10))
+        self.genePoolSize_lb.place(x = genePos[0], y = genePos[1] + 50)
+        self.genePoolSize_lb_var = tk.StringVar()
+        self.genePoolSize_lb_var.set('1000')
+        self.genePoolSize_tx = tk.Entry(self, width = 10, textvariable = self.genePoolSize_lb_var)
+        self.genePoolSize_tx.place(x = genePos[0] + 70, y = genePos[1] + 50)
+
+        self.mating_lb = tk.Label(self, text = '交配機率', font = ('Arial', 10))
+        self.mating_lb.place(x = genePos[0], y = genePos[1] + 70)
+        self.mating_lb_var = tk.StringVar()
+        self.mating_lb_var.set('0.6')
+        self.mating_tx = tk.Entry(self, width = 10, textvariable = self.mating_lb_var)
+        self.mating_tx.place(x = genePos[0] + 70, y = genePos[1] + 70)
+
+        self.mutation_lb = tk.Label(self, text = '突變機率', font = ('Arial', 10))
+        self.mutation_lb.place(x = genePos[0], y = genePos[1] + 90)
+        self.mutation_lb_var = tk.StringVar()
+        self.mutation_lb_var.set('0.01')
+        self.mutation_tx = tk.Entry(self, width = 10, textvariable = self.mutation_lb_var)
+        self.mutation_tx.place(x = genePos[0] + 70, y = genePos[1] + 90)
+
+        self.start_bt = tk.Button(self, text = "開始測試", command = self.startBt, width = 10, height = 1)
+        self.start_bt.place(x = genePos[0], y = genePos[1] + 120)
+
+        infoPos = (10, 200)
+        valueX = 100
         fileOptions = self.file.getAllTrackFilename()
         self.fileOptionValue = tk.StringVar('')
         self.fileOptionValue.set(fileOptions[0])
@@ -173,10 +208,12 @@ class Hw2Layout(tk.Tk):
         lsDistance_lb = tk.Label(self, textvariable = self.lsDistance_lb_var, font = ('Arial', 10))
         lsDistance_lb.place(x = infoPos[0] + valueX, y = infoPos[1] + 100)
 
-        self.readTrack_bt = tk.Button(self, text = "讀取 4D 記錄", command = self.readTrackBt, width = 15, height = 2)
-        self.readTrack_bt.place(x = infoPos[0], y = infoPos[1] + 150)
-        self.readHistory_bt = tk.Button(self, text = "讀取 6D 記錄", command = self.readHistoryBt, width = 15, height = 2)
-        self.readHistory_bt.place(x = infoPos[0], y = infoPos[1] + 200)
+        # self.readTrack_bt = tk.Button(self, text = "讀取 4D 記錄", command = self.readTrackBt, width = 15, height = 2)
+        # self.readTrack_bt.place(x = infoPos[0], y = infoPos[1] + 150)
+        # self.readHistory_bt = tk.Button(self, text = "讀取 6D 記錄", command = self.readHistoryBt, width = 15, height = 2)
+        # self.readHistory_bt.place(x = infoPos[0], y = infoPos[1] + 200)
+        self.readHistory_bt = tk.Button(self, text = "讀取 RBFN ", command = self.readHistoryRBFN, width = 15, height = 2)
+        self.readHistory_bt.place(x = infoPos[0], y = infoPos[1] + 150)
 
     def startBt(self):
         carStartInfo, endArea, track = self.file.getTrackData(self.fileOptionValue.get())
@@ -198,3 +235,18 @@ class Hw2Layout(tk.Tk):
         self.car.setTrack(track)
         self.car.setEndArea(endArea)
         self.runType = 3
+    
+    def readHistoryRBFN(self):
+        vector = self.file.getRBFNParam()
+        self.GeneAlgorithm.loadRBFN(vector)
+
+    def startTrain(self):
+        iteration = int(self.iterationTimes_lb_var.get())
+        genePoolSize = int(self.genePoolSize_lb_var.get())
+        matingRate = float(self.mating_lb_var.get())
+        mutationRate = float(self.mutation_lb_var.get())
+
+        self.GeneAlgorithm.setGeneParam(genePoolSize, matingRate, mutationRate, 100000)
+        for index in range(iteration):
+            print('Iteration ', index)
+            self.GeneAlgorithm.training()
