@@ -70,7 +70,10 @@ class Hw2Layout(tk.Tk):
                     fsDistance = self.car.getSensorToTrackDistance('front')
                     rsDistance = self.car.getSensorToTrackDistance('right')
                     lsDistance = self.car.getSensorToTrackDistance('left')
-                    steeringWheelAngle = self.GeneAlgorithm.testing(fsDistance, rsDistance, lsDistance)
+                    if int(self.data_vb_var.get()) == 1:
+                        steeringWheelAngle = self.GeneAlgorithm.testingFor4D(fsDistance, rsDistance, lsDistance)
+                    else:
+                        steeringWheelAngle = self.GeneAlgorithm.testingFor6D(self.car.carCenterPos[0], self.car.carCenterPos[1], fsDistance, rsDistance, lsDistance)
                     self.car.setcarSteeringWheelAngle(steeringWheelAngle)
 
                 if self.runType == 0:
@@ -141,14 +144,14 @@ class Hw2Layout(tk.Tk):
         self.iterationTimes_lb = tk.Label(self, text = '迭代次數', font = ('Arial', 10))
         self.iterationTimes_lb.place(x = genePos[0], y = genePos[1] + 70)
         self.iterationTimes_lb_var = tk.StringVar()
-        self.iterationTimes_lb_var.set('500')
+        self.iterationTimes_lb_var.set('10')
         self.iterationTimes_tx = tk.Entry(self, width = 10, textvariable = self.iterationTimes_lb_var)
         self.iterationTimes_tx.place(x = genePos[0] + 70, y = genePos[1] + 70)
 
         self.genePoolSize_lb = tk.Label(self, text = '族群大小', font = ('Arial', 10))
         self.genePoolSize_lb.place(x = genePos[0], y = genePos[1] + 90)
         self.genePoolSize_lb_var = tk.StringVar()
-        self.genePoolSize_lb_var.set('1000')
+        self.genePoolSize_lb_var.set('100')
         self.genePoolSize_tx = tk.Entry(self, width = 10, textvariable = self.genePoolSize_lb_var)
         self.genePoolSize_tx.place(x = genePos[0] + 70, y = genePos[1] + 90)
 
@@ -226,8 +229,10 @@ class Hw2Layout(tk.Tk):
         
         self.loadDataSection_lb = tk.Label(self, text = '讀取檔案', font = ('Arial', 12))
         self.loadDataSection_lb.place(x = infoPos[0], y = infoPos[1] + 140)
-        self.readHistory_bt = tk.Button(self, text = "讀取 RBFN 4D", command = self.readHistoryRBFN4D, width = 10, height = 1)
-        self.readHistory_bt.place(x = infoPos[0], y = infoPos[1] + 165)
+        self.readHistory4D_bt = tk.Button(self, text = "讀取 RBFN 4D", command = self.readHistoryRBFN4D, width = 12, height = 1)
+        self.readHistory4D_bt.place(x = infoPos[0], y = infoPos[1] + 165)
+        # self.readHistory6D_bt = tk.Button(self, text = "讀取 RBFN 6D", command = self.readHistoryRBFN6D, width = 12, height = 1)
+        # self.readHistory6D_bt.place(x = infoPos[0], y = infoPos[1] + 195)
 
     def startBt(self):
         carStartInfo, endArea, track = self.file.getTrackData(self.fileOptionValue.get())
@@ -254,6 +259,10 @@ class Hw2Layout(tk.Tk):
         vector = self.file.getRBFNParam()
         self.GeneAlgorithm.loadRBFN(vector, 3)
 
+    def readHistoryRBFN6D(self):
+        vector = self.file.getRBFNParam()
+        self.GeneAlgorithm.loadRBFN(vector, 5)
+
     def startTrain(self):
         dimension = 3 if int(self.data_vb_var.get())  == 1 else 5
         iteration = int(self.iterationTimes_lb_var.get())
@@ -264,7 +273,8 @@ class Hw2Layout(tk.Tk):
 
         self.GeneAlgorithm.setGeneParam(dimension, genePoolSize, matingRate, mutationRate, 100000)
         for index in range(iteration):
-            print('Iteration ', index)
             self.GeneAlgorithm.training()
+            print('Iteration ', index)
+            print(self.GeneAlgorithm.minFitness)
         
         self.file.writeRBFNParamToFile(self.GeneAlgorithm.bestGene.vector)

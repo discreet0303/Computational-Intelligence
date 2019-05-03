@@ -63,7 +63,6 @@ class File():
                 string += str(v) + ','
             else:
                 string += str(v)
-        print(string)
         with open(self.__DATASET_DIR_PATH + '/output/RBFN.txt', 'w') as f:
             f.write(string)
 
